@@ -40,7 +40,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 5
+	retreivalThreads = 2
 
 
 
@@ -183,7 +183,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
-			raise
+
 
 
 	def setup(self):
