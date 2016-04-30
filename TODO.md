@@ -1,9 +1,19 @@
+
+http://yomanga.co/
+http://cafeconirst.com/
+https://www.spottoon.com/
+
+refetch items with 3 or fewer images.
+
 Broken volume number: Vol.1 part 2 chapter 8: level 2 	
 I think it's converting Vol.1 to Vol, 0.1, and then casting 0.1 to integer, and getting 0
 
+invert hash table to find potential dups
 
-http://www.animenewsnetwork.com/news/2015-08-27/comic-zenon-magazine-manga-offered-in-english-online/.92188
-http://www.manga-audition.com/comic-zenon/
+Todo: Replace messy walking system for madokami with the stupidapi call dir listing thing.
+
+Add spottoon scraper.
+
 http://www.nekyou.net/
 https://www.spottoon.com/
 
@@ -18,8 +28,6 @@ http://mocopersonal.tumblr.com/tagged/kuroko-no-basuke-novel
 http://forums.mangafox.me/threads/379264-Kuroko-no-Basuke-Novel-Replace-I-and-II
 
 
-
-Add MangaBox scraper.
 
 
 09:09 < keane> to who ever has the scrapper http://bato.to/comic/_/comics/henjo-hen-na-joshi-kousei-amaguri-senko-r15331 is not being
@@ -54,6 +62,7 @@ https://manga.madokami.com/Manga/_Autouploads/AutoUploaded%20from%20Assorted%20S
 
 Webcomics module?
 http://sinnergate.com/
+
 
 Handle fractional parts (e.g. 1/6, 2/3, etc... ) of chapters.
 

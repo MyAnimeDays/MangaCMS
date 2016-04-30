@@ -173,7 +173,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def getItemsFromSeriesUrls(self, seriesItems, historical):
 		ret = []
 		self.log.info("Have %s items to fetch data for.", len(seriesItems))
-		with ThreadPoolExecutor(max_workers=5) as executor:
+		with ThreadPoolExecutor(max_workers=2) as executor:
 			tmp = []
 			for seriesUrl in seriesItems:
 				tmp.append(executor.submit(self.fetchItemsForSeries, seriesUrl, historical))
@@ -221,7 +221,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			url = self.feedUrl % (daysAgo+rangeOffset)
 			page = self.wg.getpage(url)
-			soup = bs4.BeautifulSoup(page)
+			soup = bs4.BeautifulSoup(page, "lxml")
 
 			# Find the divs containing either new files, or the day a file was uploaded
 			itemRow = soup.find_all("tr", class_=re.compile("row[01]"))

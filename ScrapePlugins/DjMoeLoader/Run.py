@@ -1,8 +1,8 @@
 
 
 
-from ScrapePlugins.DjMoeLoader.djMoeDbLoader import DjMoeDbLoader
-from ScrapePlugins.DjMoeLoader.djMoeContentLoader import DjMoeContentLoader
+from .djMoeDbLoader import DjMoeDbLoader
+from .djMoeContentLoader import DjMoeContentLoader
 
 
 import runStatus
@@ -29,3 +29,13 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		cl = DjMoeContentLoader()
 		cl.go()
 		cl.closeDB()
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup():
+
+		run = Runner()
+		run.go()

@@ -8,6 +8,7 @@ import urllib.parse
 
 import time
 import settings
+import psycopg2
 import dateutil.parser
 
 import ScrapePlugins.MonitorDbBase
@@ -91,7 +92,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 		pageCtnt = self.wgH.getpage(self.baseListURL)
 
-		soup = bs4.BeautifulSoup(pageCtnt)
+		soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 		add_seriesSegment = soup.find("div", id="add_series")
 		listList = add_seriesSegment.find_previous_sibling("p", class_="text")
 		for item in listList("a"):
@@ -157,13 +158,17 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			if haveRow:
 				# print("HaveRow = ", haveRow)
 				haveRow = haveRow.pop()
-				self.updateDbEntry(haveRow["dbId"],
-					commit=False,
-					buName=mangaName,
-					buList=listName,
-					availProgress=currentChapter,
-					readingProgress=readChapter,
-					buId=seriesID)
+
+				try:
+					self.updateDbEntry(haveRow["dbId"],
+						commit=False,
+						buName=mangaName,
+						buList=listName,
+						availProgress=currentChapter,
+						readingProgress=readChapter,
+						buId=seriesID)
+				except psycopg2.IntegrityError:
+					self.log.error("Failure updating item: '%s' on list '%s'", mangaName, listName)
 			else:
 				# ["mtList", "buList", "mtName", "mdId", "mtTags", "buName", "buId", "buTags", "readingProgress", "availProgress", "rating", "lastChanged"]
 
@@ -185,7 +190,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	def updateUserListNamed(self, listName, listURL):
 
 		pageCtnt = self.wgH.getpage(listURL)
-		soup = bs4.BeautifulSoup(pageCtnt)
+		soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 		itemTable = soup.find("table", id="list_table")
 
 
@@ -210,7 +215,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	def scanRecentlyUpdated(self):
 		ONE_DAY = 60*60*24
 		releases = self.wgH.getpage(self.baseReleasesURL)
-		soup = bs4.BeautifulSoup(releases)
+		soup = bs4.BeautifulSoup(releases, "lxml")
 
 		content = soup.find("td", {"id": "main_content"})
 		titles = content.find_all("p", class_="titlesmall")

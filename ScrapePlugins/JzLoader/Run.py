@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.JzLoader.jzFeedLoader import JzFeedLoader
-from ScrapePlugins.JzLoader.jzContentLoader import JzContentLoader
+from .jzFeedLoader import JzFeedLoader
+from .jzContentLoader import JzContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -41,3 +41,14 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl.processTodoLinks(todo)
 		cl.closeDB()
+
+
+
+if __name__ == "__main__":
+
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		obj = Runner()
+		obj.go()
+

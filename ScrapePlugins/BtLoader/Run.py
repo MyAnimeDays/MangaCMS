@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.BtLoader.btFeedLoader import BtFeedLoader
-from ScrapePlugins.BtLoader.btContentLoader import BtContentLoader
+from .btFeedLoader import BtFeedLoader
+from .btContentLoader import BtContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -46,7 +46,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup(startObservers=False):
 
 		run = Runner()
 		run.go()

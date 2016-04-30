@@ -1,24 +1,22 @@
 
-
-from ScrapePlugins.FoolSlide.RhLoader.FeedLoader    import FeedLoader
-from ScrapePlugins.FoolSlide.RhLoader.ContentLoader import ContentLoader
+import runStatus
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
 import time
 
-import runStatus
-
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Manga.Rh.Run"
+	loggerPath = "Main.Manga.GoS.Run"
 
-	pluginName = "RhLoader"
+	pluginName = "GosLoader"
 
 
 	def _go(self):
 
-		self.log.info("Checking Rh feeds for updates")
+		self.log.info("Checking GoS feeds for updates")
 		fl = FeedLoader()
 		fl.go()
 		fl.closeDB()
@@ -43,11 +41,12 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		cl.closeDB()
 
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup():
-		fl = Runner()
 
-		fl.go()
+		run = Runner()
+		run.go()
 

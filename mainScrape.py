@@ -41,8 +41,10 @@ job_defaults = {
 jobstores = {
 
 	'transient_jobstore' : MemoryJobStore(),
-	'main_jobstore'      : SQLAlchemyJobStore(url='postgresql://{username}:{password}@localhost:5432/{dbname}'.format(username=settings.DATABASE_USER,
+	'main_jobstore'      : SQLAlchemyJobStore(url='postgresql://{username}:{password}@{address}:5432/{dbname}'.format(
+				username=settings.DATABASE_USER,
 				password=settings.DATABASE_PASS,
+				address=settings.DATABASE_IP,
 				dbname=settings.DATABASE_DB_NAME))
 }
 
@@ -155,7 +157,7 @@ def go():
 def signal_handler(dummy_signal, dummy_frame):
 	if runStatus.run:
 		runStatus.run = False
-		print("Telling threads to stop")
+		print("Telling threads to stop (mainScrape)")
 	else:
 		print("Multiple keyboard interrupts. Raising")
 		raise KeyboardInterrupt

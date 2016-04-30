@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.CxLoader.cxFeedLoader import CxFeedLoader
-from ScrapePlugins.CxLoader.cxContentLoader import CxContentLoader
+from .cxFeedLoader import CxFeedLoader
+from .cxContentLoader import CxContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -41,3 +41,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl.processTodoLinks(todo)
 		cl.closeDB()
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup():
+		run = Runner()
+		run.go()

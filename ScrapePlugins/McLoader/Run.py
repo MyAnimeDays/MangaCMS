@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.McLoader.mcFeedLoader import McFeedLoader
-from ScrapePlugins.McLoader.mcContentLoader import McContentLoader
+from .mcFeedLoader import McFeedLoader
+from .mcContentLoader import McContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -46,7 +46,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup():
 
 		run = Runner()
 		run.go()

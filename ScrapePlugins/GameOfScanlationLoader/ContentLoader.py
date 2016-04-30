@@ -1,42 +1,35 @@
 
-import webFunctions
-import settings
+
+import logSetup
+import runStatus
+
+import bs4
+import nameTools as nt
 import os
 import os.path
-
-import nameTools as nt
-
-import time
-
-import urllib.parse
-import html.parser
-import zipfile
-import runStatus
-import traceback
-import bs4
-import re
-import json
-import ScrapePlugins.RetreivalBase
-
-from concurrent.futures import ThreadPoolExecutor
-
 import processDownload
+import ScrapePlugins.RetreivalBase
+import settings
+import traceback
+import urllib.parse
+import webFunctions
+import zipfile
 
-class LmContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
+	retreivalThreads = 1
 
-
-	loggerPath = "Main.Manga.Lm.Cl"
-	pluginName = "RedHawk Scans Content Retreiver"
-	tableKey = "lm"
+	loggerPath = "Main.Manga.GoS.Cl"
+	pluginName = "Game of Scanlation Scans Content Retreiver"
+	tableKey = "gos"
 	dbName = settings.DATABASE_DB_NAME
-	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 3
+	tableName = "MangaItems"
 
-	urlBase = "http://lonemanga.com/"
+	urlBase    = "https://gameofscanlation.moe/"
+	seriesBase = "https://gameofscanlation.moe/projects/"
 
 	def getImage(self, imageUrl, referrer):
 
@@ -49,41 +42,32 @@ class LmContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		self.log.info("retreived image '%s' with a size of %0.3f K", fileN, len(content)/1000.0)
 		return fileN, content
 
-
-
 	def getImageUrls(self, baseUrl):
+		pages = set()
+
+		soup = self.wg.getSoup(baseUrl)
 
 
-		currentUrl = baseUrl+"/0"
-		pages = {}
+		imagesDiv = soup.find('div', class_='chapterPages')
+		images = imagesDiv.find_all('img', class_='avatar')
 
-		while 1:
-			pageCtnt = self.wg.getpage(currentUrl)
-			soup = bs4.BeautifulSoup(pageCtnt)
-			imageTr = soup.find('tr', attrs={'id': 'imageWrapper'})
+		pageno = 1
+		for image in images:
+			src = image['src']
+			if "pagespeed" in src:
+				scheme, netloc, path, query, fragment = urllib.parse.urlsplit(src)
+				root, filename = os.path.split(path)
+				filename = filename.split(".pagespeed.")[0]
+				if filename.startswith("x"):
+					filename = filename[1:]
+				path = os.path.join(root, filename)
+				src = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
-			image = imageTr.img['src']
+			pages.add((pageno, src))
+			pageno += 1
 
-			if image in pages:
-				break
-
-			pages[image] = currentUrl
-
-			if not imageTr.a:
-				break
-
-			nextPage = imageTr.a['href']
-			if not baseUrl in nextPage:
-				break
-
-
-			currentUrl = nextPage
-
-		print("Found ", len(pages), "pages")
 
 		return pages
-
-
 
 
 	def getLink(self, link):
@@ -91,19 +75,17 @@ class LmContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		seriesName = link["seriesName"]
 		chapterVol = link["originName"]
 
-
 		try:
 			self.log.info( "Should retreive url - %s", sourceUrl)
 			self.updateDbEntry(sourceUrl, dlState=1)
 
 			imageUrls = self.getImageUrls(sourceUrl)
+
 			if not imageUrls:
 				self.log.critical("Failure on retreiving content at %s", sourceUrl)
 				self.log.critical("Page not found - 404")
 				self.updateDbEntry(sourceUrl, dlState=-1)
 				return
-
-
 
 			self.log.info("Downloading = '%s', '%s' ('%s images)", seriesName, chapterVol, len(imageUrls))
 			dlPath, newDir = self.locateOrCreateDirectoryForSeries(seriesName)
@@ -117,20 +99,19 @@ class LmContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			chapterName = nt.makeFilenameSafe(chapterVol)
 
-			fqFName = os.path.join(dlPath, chapterName+" [LoneManga].zip")
+			fqFName = os.path.join(dlPath, chapterName+" [GameOfScanlation.moe].zip")
 
 			loop = 1
 			while os.path.exists(fqFName):
 				fqFName, ext = os.path.splitext(fqFName)
 				fqFName = "%s (%d)%s" % (fqFName, loop,  ext)
-
 				loop += 1
 			self.log.info("Saving to archive = %s", fqFName)
 
 			images = []
-			for imgUrl, referrerUrl in imageUrls.items():
-				imageName, imageContent = self.getImage(imgUrl, referrerUrl)
-				images.append([imageName, imageContent])
+			for imgNum, imgUrl in imageUrls:
+				imageName, imageContent = self.getImage(imgUrl, referrer=sourceUrl)
+				images.append([imgNum, imageName, imageContent])
 
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
@@ -145,8 +126,8 @@ class LmContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			#Write all downloaded files to the archive.
 			arch = zipfile.ZipFile(fqFName, "w")
-			for imageName, imageContent in images:
-				arch.writestr(imageName, imageContent)
+			for imgNum, imageName, imageContent in images:
+				arch.writestr("{:03} - {}".format(imgNum, imageName), imageContent)
 			arch.close()
 
 
@@ -157,10 +138,18 @@ class LmContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, seriesName=seriesName, originName=chapterVol, tags=dedupState)
 			return
 
-
-
 		except Exception:
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
+
+
+if __name__ == '__main__':
+	import utilities.testBase as tb
+
+	with tb.testSetup():
+
+		cl = ContentLoader()
+		cl.go()
+
 

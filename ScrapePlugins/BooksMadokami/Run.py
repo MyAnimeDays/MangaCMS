@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.LoneMangaLoader.LmFeedLoader import LmFeedLoader
-from ScrapePlugins.LoneMangaLoader.LmContentLoader import LmContentLoader
+from .FeedLoader    import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -11,15 +11,15 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Manga.Lm.Run"
+	loggerPath = "Main.Books.Mk.Run"
 
-	pluginName = "LmLoader"
+	pluginName = "MkBookLoader"
 
 
 	def _go(self):
 
-		self.log.info("Checking Lm feeds for updates")
-		fl = LmFeedLoader()
+		self.log.info("Checking Mk feeds for updates")
+		fl = FeedLoader()
 		fl.go()
 		fl.closeDB()
 
@@ -29,7 +29,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		if not runStatus.run:
 			return
 
-		cl = LmContentLoader()
+		cl = ContentLoader()
 
 		if not runStatus.run:
 			return
@@ -41,3 +41,13 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl.processTodoLinks(todo)
 		cl.closeDB()
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = Runner()
+		run.go()

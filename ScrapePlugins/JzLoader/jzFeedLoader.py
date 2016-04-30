@@ -56,7 +56,7 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.log.info("Using URL '%s'", seriesUrl)
 		itemPage = self.wg.getpage(seriesUrl)
-		soup = bs4.BeautifulSoup(itemPage)
+		soup = bs4.BeautifulSoup(itemPage, "lxml")
 
 		linkLis = soup.find_all("li", class_="file")
 
@@ -108,7 +108,7 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret = []
 
 		basePage = self.wg.getpage(self.urlBase)
-		soup = bs4.BeautifulSoup(basePage)
+		soup = bs4.BeautifulSoup(basePage, "lxml")
 
 		seriesPages = self.getSeriesPages(soup, self.urlBase)
 

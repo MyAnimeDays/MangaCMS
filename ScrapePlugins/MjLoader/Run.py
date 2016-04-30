@@ -1,13 +1,10 @@
 
 
-from ScrapePlugins.MjLoader.mjFeedLoader import MjFeedLoader
-from ScrapePlugins.MjLoader.mjContentLoader import MjContentLoader
+from .mjFeedLoader import MjFeedLoader
+from .mjContentLoader import MjContentLoader
 
 import ScrapePlugins.RunBase
 
-import time
-
-import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
@@ -24,6 +21,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup( ):
 		mon = Runner()
 		mon.go()
